@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { Peer } from "peerjs";
 import { useEffect, useState, useRef } from "preact/hooks";
 import { Media, Video, AspectRatio } from "@vidstack/player-react";
@@ -6,6 +7,7 @@ import "./styles.css";
 const mason = ({ id }) => {
   const v2Ref = useRef(null);
   const [status, setStatus] = useState(false);
+  const [refCon, setRefCon] = useState(null);
 
   useEffect(() => {
     createPeer();
@@ -38,17 +40,23 @@ const mason = ({ id }) => {
       console.log(`Connection to peer error: ${error}`)
     );
 
-    // Connect to ID
+    peer.on("connection", (conn) => {
+      console.log("conn in");
+      if (refCon) conn.close();
+      else setRefCon(refCon);
+      conn.on("data", (data) => {
+        console.log(data);
+      });
+      conn.send("Sending other peer a message");
+    });
 
+    // Connect to ID
     peer.on("open", (self) => {
       console.log(`Mason ID: ${self}`);
       console.log(`connecting to ${id}`);
-      const conn = peer.connect(id);
-      conn.on("connection", (connection) => {
-        connection.on("open", () => {
-          console.log("connection established");
-        });
-      });
+      const conn = peer.connect(id, { reliable: true });
+      setRefCon(conn);
+      conn.on("data", (data) => console.log(data));
       conn.on("error", (err) => console.log(`cannot establish ${err}`));
     });
   };
@@ -63,6 +71,15 @@ const mason = ({ id }) => {
         </AspectRatio>
       </Media>
     );
+  };
+
+  const sendMsg = (msg) => {
+    console.log("snedMsgIn");
+    if (refCon) {
+      refCon.send(msg);
+    } else {
+      console.error("Error sending message: Connection not active?");
+    }
   };
 
   return (

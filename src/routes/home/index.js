@@ -7,6 +7,7 @@ const Home = () => {
   const [file, setFile] = useState(null);
   const [filePath, setFilePath] = useState(null);
   const [peerId, setPeerId] = useState(null);
+  const [refCon, setRefCon] = useState(null);
   const v1Ref = useRef({});
 
   const handleFileChange = (events) => {
@@ -37,14 +38,16 @@ const Home = () => {
     });
 
     peer.on("connection", (connection) => {
-      //Listening any messages from mason
-      connection.on("data", (data) =>
-        console.log(`message from mason: ${data}`)
-      );
-
       //On establishing connection with mason
       connection.on("open", () => {
+        setRefCon(connection);
+        //Listening any messages from mason
+        connection.on("data", (data) =>
+          console.log(`message from mason: ${data}`)
+        );
+
         console.log(`mason connecting ${connection.peer}`);
+
         if (v1Ref.current) {
           peer.call(connection.peer, v1Ref.current.captureStream());
         } else {
@@ -52,6 +55,15 @@ const Home = () => {
         }
       });
     });
+  };
+
+  const sendMsg = (msg) => {
+    console.log("snedMsgIn");
+    if (refCon) {
+      refCon.send(msg);
+    } else {
+      console.error("Error sending message: Connection not active?");
+    }
   };
 
   return (
