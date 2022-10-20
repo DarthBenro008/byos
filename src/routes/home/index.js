@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "preact/hooks";
 import { Peer } from "peerjs";
 import { Media, Video, AspectRatio } from "@vidstack/player-react";
+import UsernameModal from "../../components/UsernameModal";
 import "./styles.css";
 
 const Home = () => {
@@ -8,6 +9,7 @@ const Home = () => {
   const [filePath, setFilePath] = useState(null);
   const [peerId, setPeerId] = useState(null);
   const [refCon, setRefCon] = useState(null);
+  const [username, setUsername] = useState(null);
   const v1Ref = useRef({});
 
   const handleFileChange = (events) => {
@@ -18,10 +20,22 @@ const Home = () => {
     console.log(path);
   };
 
+  const setName = (username) => {
+    localStorage.setItem("username", username);
+    setUsername(username);
+  };
+
   useEffect(() => {
-    console.log("nice");
+    console.log("filepath useEffect");
     createPeer();
   }, [filePath]);
+
+  useEffect(() => {
+    const username = localStorage.getItem("username");
+    if (username) {
+      setUsername(username);
+    }
+  }, []);
 
   const createPeer = () => {
     console.log("triggering peer");
@@ -66,32 +80,46 @@ const Home = () => {
     }
   };
 
+  const Player = () => {
+    return (
+      <Media>
+        <AspectRatio ratio="16/9">
+          <Video autoplay controls>
+            <video
+              className="h-screen"
+              ref={v1Ref}
+              controls
+              src={filePath}
+              preload="none"
+              data-video="0"
+            />
+          </Video>
+        </AspectRatio>
+      </Media>
+    );
+  };
+
+  const FileSelection = () => {
+    return (
+      <input
+        type="file"
+        id="file-input"
+        onChange={handleFileChange}
+        accept="video/*"
+      />
+    );
+  };
+
   return (
     <div>
-      {file ? (
-        <Media>
-          <AspectRatio ratio="16/9">
-            <Video autoplay controls>
-              <video
-                ref={v1Ref}
-                controls
-                src={filePath}
-                preload="none"
-                data-video="0"
-              />
-            </Video>
-          </AspectRatio>
-        </Media>
-      ) : (
-        <input
-          type="file"
-          id="file-input"
-          onChange={handleFileChange}
-          accept="video/*"
-        />
-      )}
-      <br />
-      {peerId ? peerId : <div />}
+      <div className="grid grid-cols-12">
+        <div className="flex col-span-10 h-screen">
+          {file ? Player() : FileSelection()}
+        </div>
+        <div className="col-span-2">02</div>
+      </div>
+
+      {username ? <div /> : <UsernameModal submissionFunction={setName} />}
     </div>
   );
 };

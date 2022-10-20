@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 html, body {
 	height: 100%;
 	width: 100%;
@@ -18,3 +22,64 @@ html, body {
 #app {
 	height: 100%;
 }
+
+.media-buffering-container {
+	position: absolute;
+	top: 0;
+	left: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 100%;
+	/* prevent blocking lower elements (e.g., gestures). */
+	pointer-events: none;
+	/** place above poster (optional). */
+	z-index: 1;
+  }
+  
+  .media-buffering-icon {
+	width: 96px;
+	height: 96px;
+	color: white;
+	opacity: 0;
+	transition: opacity 200ms ease;
+  }
+  
+  .media-buffering-track {
+	opacity: 0.25;
+  }
+  
+  .media-buffering-track-fill {
+	opacity: 0.75;
+	stroke-dasharray: 100;
+	stroke-dashoffset: 50;
+  }
+  
+  /* Show buffering indicator while media is not ready, or buffering. */
+  vds-media:not([can-play]) .media-buffering-icon,
+  vds-media[waiting] .media-buffering-icon {
+	opacity: 1;
+	animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+	to {
+	  transform: rotate(360deg);
+	}
+  }
+  
+  video{
+	height: none !important;
+  }
+  
+  vds-video {
+	height:max-content;
+  }
+  
+  vds-media {
+	display: inline-flexbox;
+	width: 100%;
+	height: 100%;
+  }
+  
