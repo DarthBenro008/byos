@@ -1,5 +1,6 @@
 import { h } from "preact";
 import { Router } from "preact-router";
+import '@vidstack/player/hydrate.js';
 
 import Home from "../routes/home";
 import Mason from "../routes/mason";

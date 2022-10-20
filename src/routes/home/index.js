@@ -1,5 +1,7 @@
 import { useEffect, useState, useRef } from "preact/hooks";
 import { Peer } from "peerjs";
+import { Media, Video, AspectRatio } from "@vidstack/player-react";
+import "./styles.css";
 
 const Home = () => {
   const [file, setFile] = useState(null);
@@ -42,7 +44,7 @@ const Home = () => {
 
       //On establishing connection with mason
       connection.on("open", () => {
-		console.log(`mason connecting ${connection.peer}`)
+        console.log(`mason connecting ${connection.peer}`);
         if (v1Ref.current) {
           peer.call(connection.peer, v1Ref.current.captureStream());
         } else {
@@ -55,7 +57,19 @@ const Home = () => {
   return (
     <div>
       {file ? (
-        <video autoplay controls src={filePath} ref={v1Ref} />
+        <Media>
+          <AspectRatio ratio="16/9">
+            <Video autoplay controls>
+              <video
+                ref={v1Ref}
+                controls
+                src={filePath}
+                preload="none"
+                data-video="0"
+              />
+            </Video>
+          </AspectRatio>
+        </Media>
       ) : (
         <input
           type="file"

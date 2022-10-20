@@ -1,5 +1,7 @@
 import { Peer } from "peerjs";
 import { useEffect, useState, useRef } from "preact/hooks";
+import { Media, Video, AspectRatio } from "@vidstack/player-react";
+import "./styles.css";
 
 const mason = ({ id }) => {
   const v2Ref = useRef(null);
@@ -26,7 +28,6 @@ const mason = ({ id }) => {
           } else {
             video.src = window.URL.createObjectURL(stream);
           }
-          video.play()
         } else {
           console.log("Video not ready");
         }
@@ -46,18 +47,29 @@ const mason = ({ id }) => {
       conn.on("connection", (connection) => {
         connection.on("open", () => {
           console.log("connection established");
-          
         });
       });
       conn.on("error", (err) => console.log(`cannot establish ${err}`));
     });
   };
 
+  const Player = () => {
+    return (
+      <Media>
+        <AspectRatio ratio="16/9">
+          <Video autoplay controls>
+            <video ref={v2Ref} controls preload="none" data-video="0" />
+          </Video>
+        </AspectRatio>
+      </Media>
+    );
+  };
+
   return (
     <div>
       Hello {id}
       <br />
-      {status ? <video ref={v2Ref} /> : <div />}
+      {status ? Player() : <div />}
     </div>
   );
 };
