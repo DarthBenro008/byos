@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "nadee",
+  "name": "byos",
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
@@ -35,7 +35,8 @@
     "preact": "^10.3.2",
     "preact-render-to-string": "^5.1.4",
     "preact-router": "^3.2.1",
-    "tailwindcss": "^3.2.0"
+    "tailwindcss": "^3.2.0",
+    "@fullhuman/postcss-purgecss": "^5.0.0"
   },
   "jest": {
     "preset": "jest-preset-preact",

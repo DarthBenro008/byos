@@ -1,23 +1,23 @@
-module.exports = (config, env, helpers, params = defaultParams) => {
-  const purgecss = require("@fullhuman/postcss-purgecss")({
-    // Specify the paths to all of the template files in your project
-    content: ["./src/**/*.js"],
+const purgeCSS = require('@fullhuman/postcss-purgecss');
+const tailwindCSS = require('tailwindcss');
 
-    // Include any special characters you're using in this regular expression
-    defaultExtractor: (content) => content.match(params.regex) || [],
-  });
-
-  const postCssLoaders = helpers.getLoadersByName(config, "postcss-loader");
+module.exports = (config, env, helpers) => {
+  const postCssLoaders = helpers.getLoadersByName(config, 'postcss-loader');
   postCssLoaders.forEach(({ loader }) => {
     const plugins = loader.options.postcssOptions.plugins
 
-    // Add tailwind css at the top.
-    plugins.unshift(require("tailwindcss"));
+    // Add tailwindcss to top of plugins list
+    plugins.unshift(tailwindCSS);
 
-    // Add PurgeCSS only in production.
+    // Purging enabled only during production build
     if (env.production) {
-      plugins.push(purgecss);
+      plugins.push(purgeCSS({
+        content: ['./src/**/*.js', './src/**/*.html', './src/**/*.svg', './src/**/*.jsx'],
+        keyframes: true,
+        defaultExtractor: content => content.match(/[^<>"'`\s]*[^<>"'`\s:]/g) || [],
+      }));
     }
   });
+
   return config;
 };
