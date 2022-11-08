@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "preact/hooks";
 import { Peer } from "peerjs";
 import { Media, Video, AspectRatio } from "@vidstack/player-react";
 import UsernameModal from "../../components/UsernameModal";
+import ChatWindow from "../../components/Chat";
 import "./styles.css";
 
 const Home = () => {
@@ -10,7 +11,11 @@ const Home = () => {
   const [peerId, setPeerId] = useState(null);
   const [refCon, setRefCon] = useState(null);
   const [username, setUsername] = useState(null);
+  const [messages, setMessages] = useState([]);
   const v1Ref = useRef({});
+  const msgRef = useRef(messages);
+
+  msgRef.current = messages;
 
   const handleFileChange = (events) => {
     events.preventDefault();
@@ -47,7 +52,7 @@ const Home = () => {
     const peer = new Peer();
     // Setting Peer Id to the user
     peer.on("open", (id) => {
-      console.log(id);
+      console.log(`http://localhost:8080/${id}`);
       setPeerId(id);
     });
 
@@ -56,9 +61,13 @@ const Home = () => {
       connection.on("open", () => {
         setRefCon(connection);
         //Listening any messages from mason
-        connection.on("data", (data) =>
-          console.log(`message from mason: ${data}`)
-        );
+        connection.on("data", (data) => {
+          console.log(`message from mason: ${data}`);
+          setMessages([
+            ...msgRef.current,
+            { sender: connection.id, msg: data },
+          ]);
+        });
 
         console.log(`mason connecting ${connection.peer}`);
 
@@ -71,10 +80,11 @@ const Home = () => {
     });
   };
 
-  const sendMsg = (msg) => {
-    console.log("snedMsgIn");
+  const sendMsg = (outgoingMessage) => {
     if (refCon) {
-      refCon.send(msg);
+      console.log(`sending ${outgoingMessage}`);
+      refCon.send(outgoingMessage);
+      setMessages([...messages, { sender: username, msg: outgoingMessage }]);
     } else {
       console.error("Error sending message: Connection not active?");
     }
@@ -116,7 +126,15 @@ const Home = () => {
         <div className="flex col-span-10 h-screen">
           {file ? Player() : FileSelection()}
         </div>
-        <div className="col-span-2">02</div>
+        <div className="col-span-2">
+          <ChatWindow
+            username={username}
+            title={`${username}'s Party`}
+            sendMessageFunction={sendMsg}
+            data={messages}
+            url={peerId}
+          />
+        </div>
       </div>
 
       {username ? <div /> : <UsernameModal submissionFunction={setName} />}

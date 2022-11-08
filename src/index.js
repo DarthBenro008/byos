@@ -1,3 +1,4 @@
+import "preact/debug";
 import './style';
 import App from './components/app';
 
