@@ -56,7 +56,28 @@ const Home = () => {
       setPeerId(id);
     });
 
+    peer.on("disconnected", () => {
+      setMessages([
+        ...msgRef.current,
+        { sender: "f", msg: "Friend has discconected" },
+      ]);
+    });
+
+    peer.on("close", () => {
+      setMessages([
+        ...msgRef.current,
+        { sender: "f", msg: "Friend has discconected" },
+      ]);
+    });
+
     peer.on("connection", (connection) => {
+      connection.on("close", () => {
+        setMessages([
+          ...msgRef.current,
+          { sender: "f", msg: "Friend has discconected" },
+        ]);
+      });
+
       //On establishing connection with mason
       connection.on("open", () => {
         setRefCon(connection);
@@ -70,6 +91,10 @@ const Home = () => {
         });
 
         console.log(`mason connecting ${connection.peer}`);
+        setMessages([
+          ...msgRef.current,
+          { sender: connection.id, msg: "Your friend is here!" },
+        ]);
 
         if (v1Ref.current) {
           peer.call(connection.peer, v1Ref.current.captureStream());
@@ -111,21 +136,35 @@ const Home = () => {
 
   const FileSelection = () => {
     return (
-      <input
-        type="file"
-        id="file-input"
-        onChange={handleFileChange}
-        accept="video/*"
-      />
+      <div className="flex w-full h-screen items-center justify-center bg-grey-lighter">
+        <label className="w-64 flex flex-col items-center px-4 py-6 bg-white text-blue rounded-lg shadow-lg tracking-wide text-center border border-blue cursor-pointer hover:bg-gray-800 hover:text-blue-500">
+          <svg
+            className="w-8 h-8"
+            fill="currentColor"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+          >
+            <path d="M16.88 9.1A4 4 0 0 1 16 17H5a5 5 0 0 1-1-9.9V7a3 3 0 0 1 4.52-2.59A4.98 4.98 0 0 1 17 8c0 .38-.04.74-.12 1.1zM11 11h3l-4-4-4 4h3v3h2v-3z" />
+          </svg>
+          <span className="mt-2 text-base leading-normal">
+            Select a file to continue!
+          </span>
+          <input
+            type="file"
+            id="file-input"
+            className="hidden"
+            onChange={handleFileChange}
+            accept="video/*"
+          />
+        </label>
+      </div>
     );
   };
 
-  return (
-    <div>
-      <div className="grid grid-cols-12">
-        <div className="flex col-span-10 h-screen">
-          {file ? Player() : FileSelection()}
-        </div>
+  const mainApp = () => {
+    return (
+      <div className="grid grid-cols-12 bg-gray-800">
+        <div className="flex col-span-10 h-screen">{Player()}</div>
         <div className="col-span-2">
           <ChatWindow
             username={username}
@@ -136,8 +175,20 @@ const Home = () => {
           />
         </div>
       </div>
+    );
+  };
 
-      {username ? <div /> : <UsernameModal submissionFunction={setName} />}
+  return (
+    <div className="bg-gray-800 h-screen">
+      {username ? (
+        file ? (
+          mainApp()
+        ) : (
+          FileSelection()
+        )
+      ) : (
+        <UsernameModal submissionFunction={setName} />
+      )}
     </div>
   );
 };

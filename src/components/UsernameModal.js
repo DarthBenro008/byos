@@ -26,7 +26,7 @@ const UsernameModal = ({ submissionFunction }) => {
         <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
           <div className="py-6 px-6 lg:px-8">
             <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">
-              Please Enter your username
+              Welcome to B.Y.O.S! (Bring your own screen)
             </h3>
             <form className="space-y-6" action="#">
               <div>
