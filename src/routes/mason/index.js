@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "preact/hooks";
 import { Media, Video, AspectRatio } from "@vidstack/player-react";
 import UsernameModal from "../../components/UsernameModal";
 import ChatWindow from "../../components/Chat";
+import { useSnackbar } from "notistack";
 
 const mason = ({ id }) => {
   const v2Ref = useRef(null);
@@ -12,12 +13,30 @@ const mason = ({ id }) => {
   const [username, setUsername] = useState(null);
   const [messages, setMessages] = useState([]);
   const msgRef = useRef(messages);
+  const { enqueueSnackbar } = useSnackbar();
 
   msgRef.current = messages;
 
   const setName = (username) => {
     localStorage.setItem("username", username);
     setUsername(username);
+  };
+
+  const errorSnack = (message) => {
+    enqueueSnackbar(message, {
+      variant: "error",
+      anchorOrigin: { vertical: "top", horizontal: "left" },
+      persist: true,
+    });
+  };
+
+  const successSnack = (message) => {
+    enqueueSnackbar(message, {
+      variant: "info",
+      anchorOrigin: { vertical: "top", horizontal: "left" },
+      autoHideDuration: 2000,
+      preventDuplicate: true,
+    });
   };
 
   useEffect(() => {
@@ -38,6 +57,7 @@ const mason = ({ id }) => {
       setStatus(true);
       call.answer();
       call.on("stream", (stream) => {
+        successSnack("You have joined a party! Please click on play button");
         const video = v2Ref.current;
         if (video) {
           if ("srcObject" in video) {
@@ -52,8 +72,8 @@ const mason = ({ id }) => {
     });
 
     peer.on("error", (error) => {
+      errorSnack(`Something went wrong! with error: ${error}`);
       console.log(`Connection to peer error: ${error}`);
-      alert(`Major F\n${error}\nPlease contact hey@benro.dev`);
     });
 
     peer.on("connection", (conn) => {
@@ -83,9 +103,10 @@ const mason = ({ id }) => {
         console.log("message from home", data);
         setMessages([...msgRef.current, { sender: "f", msg: data }]);
       });
-      conn.on("error", (err) =>
-        alert(`Error: ${err}\n Please contact hey@benro.dev`)
-      );
+      conn.on("error", (err) => {
+        errorSnack(`Something went wrong! with error: ${err}`);
+        // alert(`Error: ${err}\n Please contact hey@benro.dev`);
+      });
     });
   };
 
@@ -152,7 +173,7 @@ const mason = ({ id }) => {
   const mainApp = () => {
     return (
       <div className="grid grid-cols-12">
-        <div className="flex col-span-10 h-screen">{Player()}g</div>
+        <div className="flex col-span-10 h-screen">{Player()}</div>
         <div className="col-span-2">
           <ChatWindow
             username={username}

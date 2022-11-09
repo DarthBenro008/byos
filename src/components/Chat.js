@@ -60,7 +60,7 @@ function ChatWindow({
               if (message.sender === username) {
                 return (
                   <li key={index} className="flex justify-end">
-                    <div className="relative max-w-xl px-4 py-2 text-gray-700 bg-gray-100 rounded shadow">
+                    <div className="relative max-w-xl px-4 py-2 text-gray-700 bg-gray-100 rounded-lg shadow rounded-br-none">
                       <span className="block">{message.msg}</span>
                     </div>
                   </li>
@@ -68,7 +68,7 @@ function ChatWindow({
               }
               return (
                 <li key={index} className="flex justify-start">
-                  <div className="relative max-w-xl px-4 py-2 text-black bg-orange-500 rounded shadow">
+                  <div className="relative max-w-xl px-4 py-2 text-black bg-orange-500 rounded-lg rounded-tl-none shadow">
                     <span className="block">{message.msg}</span>
                   </div>
                 </li>

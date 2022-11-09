@@ -3,6 +3,8 @@ import { Peer } from "peerjs";
 import { Media, Video, AspectRatio } from "@vidstack/player-react";
 import UsernameModal from "../../components/UsernameModal";
 import ChatWindow from "../../components/Chat";
+import { useSnackbar } from "notistack";
+import copy from "copy-to-clipboard";
 import "./styles.css";
 
 const Home = () => {
@@ -14,8 +16,17 @@ const Home = () => {
   const [messages, setMessages] = useState([]);
   const v1Ref = useRef({});
   const msgRef = useRef(messages);
+  const { enqueueSnackbar } = useSnackbar();
 
   msgRef.current = messages;
+
+  const successSnack = (message) => {
+    enqueueSnackbar(message, {
+      variant: "info",
+      anchorOrigin: { vertical: "top", horizontal: "left" },
+      autoHideDuration: 2000
+    });
+  };
 
   const handleFileChange = (events) => {
     events.preventDefault();
@@ -52,7 +63,10 @@ const Home = () => {
     const peer = new Peer();
     // Setting Peer Id to the user
     peer.on("open", (id) => {
-      console.log(`http://localhost:8080/${id}`);
+      successSnack(
+        `The URL you need to send to your friend has been copied to your clipboard!`
+      );
+      copy(`https://${window.location.hostname}/${id}`);
       setPeerId(id);
     });
 
