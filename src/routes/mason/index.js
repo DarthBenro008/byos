@@ -76,15 +76,6 @@ const mason = ({ id }) => {
       console.log(`Connection to peer error: ${error}`);
     });
 
-    peer.on("connection", (conn) => {
-      console.log("conn in");
-      if (refCon) conn.close();
-      else setRefCon(refCon);
-      conn.on("data", (data) => {
-        console.log(data);
-      });
-      conn.send("Sending other peer a message");
-    });
 
     // Connect to ID
     peer.on("open", (self) => {
@@ -131,8 +122,6 @@ const mason = ({ id }) => {
 
   const sendMsg = (outgoingMessage) => {
     if (refCon) {
-      console.log(`sending ${outgoingMessage}`);
-      console.log("sender", messages);
       refCon.send(outgoingMessage);
       setMessages([...messages, { sender: username, msg: outgoingMessage }]);
     } else {

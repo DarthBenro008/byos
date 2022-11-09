@@ -15,10 +15,6 @@ function ChatWindow({
     setMessage(event.target.value);
   };
 
-  useEffect(() => {
-    console.log(data);
-  });
-
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
       submit();

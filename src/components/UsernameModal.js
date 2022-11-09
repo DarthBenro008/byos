@@ -11,7 +11,6 @@ const UsernameModal = ({ submissionFunction }) => {
     if (message === "") {
       return;
     }
-    console.log(message);
     submissionFunction(message);
   };
 

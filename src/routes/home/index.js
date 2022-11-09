@@ -33,7 +33,6 @@ const Home = () => {
     setFile(events.target.files[0]);
     const path = URL.createObjectURL(events.target.files[0]);
     setFilePath(path);
-    console.log(path);
   };
 
   const setName = (username) => {
@@ -42,7 +41,6 @@ const Home = () => {
   };
 
   useEffect(() => {
-    console.log("filepath useEffect");
     createPeer();
   }, [filePath]);
 
@@ -54,7 +52,6 @@ const Home = () => {
   }, []);
 
   const createPeer = () => {
-    console.log("triggering peer");
     if (!filePath) {
       return;
     }
