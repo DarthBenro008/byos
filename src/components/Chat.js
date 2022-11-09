@@ -43,7 +43,9 @@ function ChatWindow({
             src="https://img.freepik.com/free-vector/cute-cat-hole-cartoon-vector-icon-illustration-animal-nature-icon-concept-isolated-premium-vector-flat-cartoon-style_138676-4236.jpg?w=740&t=st=1666293750~exp=1666294350~hmac=d38d09dacce8d024f8d3f14a928fda27494c6b901ceee0f502693a671f271691"
             alt="username"
             onClick={() => {
-              alert(`Send this to your friend: https://${window.location.hostname}/${url}`);
+              alert(
+                `Send this to your friend: https://${window.location.hostname}/${url}`
+              );
             }}
           />
           <span className="block ml-2 font-bold ">{title}</span>
@@ -52,7 +54,7 @@ function ChatWindow({
       </div>
 
       <div className="">
-        <div className="w-full p-6 overflow-y-auto h-[40rem]">
+        <div className="w-full p-6 overflow-y-auto tall:h-[40rem] md:h-[36rem]">
           <ul className="space-y-2">
             {data.map((message, index) => {
               if (message.sender === username) {
