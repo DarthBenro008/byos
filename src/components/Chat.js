@@ -1,4 +1,4 @@
-import { useEffect, useState } from "preact/hooks";
+import { useRef, useEffect, useState } from "preact/hooks";
 
 function ChatWindow({
   sendMessageFunction,
@@ -9,11 +9,32 @@ function ChatWindow({
   username = "Joe Mamma",
   title = "Joe Mamma",
   url = "something went wrong",
+  message = "",
+  setMessage,
 }) {
-  const [message, setMessage] = useState("");
   const handleChange = (event) => {
     setMessage(event.target.value);
   };
+  const msgInput = useRef(null);
+  const chatContainer = useRef(null);
+
+  const scrollToBottom = () => {
+    const scroll =
+      chatContainer.current.scrollHeight - chatContainer.current.clientHeight;
+    chatContainer.current.scrollTo({
+      top: scroll,
+      left: 0,
+      behaviour: "smooth",
+    });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+
+    if (msgInput.current) {
+      msgInput.current.focus();
+    }
+  }, [data]);
 
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
@@ -26,6 +47,7 @@ function ChatWindow({
       return;
     }
     sendMessageFunction(message);
+    setMessage("");
   };
   return (
     <div
@@ -50,12 +72,15 @@ function ChatWindow({
       </div>
 
       <div className="">
-        <div className="w-full p-6 overflow-y-auto tall:h-[40rem] md:h-[36rem]">
+        <div
+          className="w-full p-6 overflow-y-auto flex-col-reverse justify-end tall:h-[40rem] md:h-[36rem]"
+          ref={chatContainer}
+        >
           <ul className="space-y-2">
             {data.map((message, index) => {
               if (message.sender === username) {
                 return (
-                  <li key={index} className="flex justify-end">
+                  <li key={index} className="flex justify-end h-full">
                     <div className="relative max-w-xl px-4 py-2 text-gray-700 bg-gray-100 rounded-lg shadow rounded-br-none">
                       <span className="block">{message.msg}</span>
                     </div>
@@ -73,10 +98,10 @@ function ChatWindow({
           </ul>
         </div>
       </div>
-
       <div className="w-full">
         <div className="flex items-center justify-between w-full p-2 border-t pt-5 border-amber-700">
           <input
+            ref={msgInput}
             autoComplete="off"
             onChange={handleChange}
             onKeyDown={handleKeyDown}

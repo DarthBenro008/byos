@@ -14,6 +14,7 @@ const Home = () => {
   const [refCon, setRefCon] = useState(null);
   const [username, setUsername] = useState(null);
   const [messages, setMessages] = useState([]);
+  const [message, setMessage] = useState("");
   const v1Ref = useRef({});
   const msgRef = useRef(messages);
   const { enqueueSnackbar } = useSnackbar();
@@ -24,7 +25,7 @@ const Home = () => {
     enqueueSnackbar(message, {
       variant: "info",
       anchorOrigin: { vertical: "top", horizontal: "left" },
-      autoHideDuration: 2000
+      autoHideDuration: 2000,
     });
   };
 
@@ -178,6 +179,8 @@ const Home = () => {
         <div className="flex col-span-10 h-screen">{Player()}</div>
         <div className="col-span-2">
           <ChatWindow
+            message={message}
+            setMessage={setMessage}
             username={username}
             title={`${username}'s Party`}
             sendMessageFunction={sendMsg}

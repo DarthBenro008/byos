@@ -12,6 +12,7 @@ const mason = ({ id }) => {
   const [refCon, setRefCon] = useState(null);
   const [username, setUsername] = useState(null);
   const [messages, setMessages] = useState([]);
+  const [message, setMessage] = useState("");
   const msgRef = useRef(messages);
   const { enqueueSnackbar } = useSnackbar();
 
@@ -75,7 +76,6 @@ const mason = ({ id }) => {
       errorSnack(`Something went wrong! with error: ${error}`);
       console.log(`Connection to peer error: ${error}`);
     });
-
 
     // Connect to ID
     peer.on("open", (self) => {
@@ -165,6 +165,8 @@ const mason = ({ id }) => {
         <div className="flex col-span-10 h-screen">{Player()}</div>
         <div className="col-span-2">
           <ChatWindow
+            message={message}
+            setMessage={setMessage}
             username={username}
             title={`${username}'s Party`}
             sendMessageFunction={sendMsg}
