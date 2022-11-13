@@ -13,6 +13,7 @@ const mason = ({ id }) => {
   const [username, setUsername] = useState(null);
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
+  const [sub, setSub] = useState("");
   const msgRef = useRef(messages);
   const { enqueueSnackbar } = useSnackbar();
 
@@ -21,6 +22,16 @@ const mason = ({ id }) => {
   const setName = (username) => {
     localStorage.setItem("username", username);
     setUsername(username);
+  };
+
+  const msgHub = (data) => {
+    switch (data.cmd) {
+      case "sub":
+        setSub(data.msg.msg);
+        break;
+      case "text":
+        setMessages([...msgRef.current, data.msg]);
+    }
   };
 
   const errorSnack = (message) => {
@@ -92,7 +103,8 @@ const mason = ({ id }) => {
       setRefCon(conn);
       conn.on("data", (data) => {
         console.log("message from home", data);
-        setMessages([...msgRef.current, { sender: "f", msg: data }]);
+        // setMessages([...msgRef.current, { sender: "f", msg: data }]);
+        msgHub(data);
       });
       conn.on("error", (err) => {
         errorSnack(`Something went wrong! with error: ${err}`);
@@ -162,7 +174,12 @@ const mason = ({ id }) => {
   const mainApp = () => {
     return (
       <div className="grid grid-cols-12">
-        <div className="flex col-span-10 h-screen">{Player()}</div>
+        <div className="flex col-span-10 h-screen relative">
+          {Player()}
+          <div className="absolute z-10 bg-clip-content bottom-20 break-words font-mono text-base w-full text-center text-white/75">
+            <span className="bg-clip-content bg-zinc-800/50 p-2">{sub}</span>
+          </div>
+        </div>
         <div className="col-span-2">
           <ChatWindow
             message={message}

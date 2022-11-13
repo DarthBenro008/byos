@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "preact/hooks";
+import { useRef, useEffect } from "preact/hooks";
 
 function ChatWindow({
   sendMessageFunction,

@@ -3,6 +3,7 @@ import { Peer } from "peerjs";
 import { Media, Video, AspectRatio } from "@vidstack/player-react";
 import UsernameModal from "../../components/UsernameModal";
 import ChatWindow from "../../components/Chat";
+import { default as toWebVTT } from "srt-webvtt";
 import { useSnackbar } from "notistack";
 import copy from "copy-to-clipboard";
 import "./styles.css";
@@ -11,11 +12,13 @@ const Home = () => {
   const [file, setFile] = useState(null);
   const [filePath, setFilePath] = useState(null);
   const [peerId, setPeerId] = useState(null);
-  const [refCon, setRefCon] = useState(null);
+  // const [refCon, setRefCon] = useState(null);
   const [username, setUsername] = useState(null);
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
   const v1Ref = useRef({});
+  const subRef = useRef({});
+  const refCon = useRef(null);
   const msgRef = useRef(messages);
   const { enqueueSnackbar } = useSnackbar();
 
@@ -51,6 +54,18 @@ const Home = () => {
       setUsername(username);
     }
   }, []);
+
+  const loadSubtitle = async (events) => {
+    const textTrackUrl = await toWebVTT(events.target.files[0]); // this function accepts a parameer of SRT subtitle blob/file object
+    subRef.current.src = textTrackUrl;
+    v1Ref.current.textTracks[0].mode = "showing";
+    console.log(textTrackUrl, subRef);
+    subRef.current.addEventListener("cuechange", () => {
+      const text = v1Ref.current.textTracks[0]?.activeCues[0]?.text ?? "empty";
+      console.log(text);
+      sendMsg(text, "sub");
+    });
+  };
 
   const createPeer = () => {
     if (!filePath) {
@@ -92,7 +107,8 @@ const Home = () => {
 
       //On establishing connection with mason
       connection.on("open", () => {
-        setRefCon(connection);
+        // setRefCon(connection);
+        refCon.current = connection;
         //Listening any messages from mason
         connection.on("data", (data) => {
           console.log(`message from mason: ${data}`);
@@ -117,11 +133,16 @@ const Home = () => {
     });
   };
 
-  const sendMsg = (outgoingMessage) => {
-    if (refCon) {
+  const sendMsg = (outgoingMessage, type = "text") => {
+    if (refCon.current) {
       console.log(`sending ${outgoingMessage}`);
-      refCon.send(outgoingMessage);
-      setMessages([...messages, { sender: username, msg: outgoingMessage }]);
+      refCon.current.send({
+        cmd: type,
+        msg: { sender: username, msg: outgoingMessage },
+      });
+      if (type === "text") {
+        setMessages([...messages, { sender: username, msg: outgoingMessage }]);
+      }
     } else {
       console.error("Error sending message: Connection not active?");
     }
@@ -139,7 +160,9 @@ const Home = () => {
               src={filePath}
               preload="none"
               data-video="0"
-            />
+            >
+              <track kind="subtitles" ref={subRef} />
+            </video>
           </Video>
         </AspectRatio>
       </Media>
@@ -166,7 +189,7 @@ const Home = () => {
             id="file-input"
             className="hidden"
             onChange={handleFileChange}
-            accept="video/*"
+            accept="video/mp4,.mp4,video/avi,.avi,video/mpeg,.mpeg,.mpg,video/3gpp,.3gp,.divx,video/x-flv,.flv,video/x-matroska,.mkv,video/quicktime,.mov,audio/ogg,.ogg,video/webm,.webm,video/x-ms-wmv,.wmv"
           />
         </label>
       </div>
@@ -176,7 +199,16 @@ const Home = () => {
   const mainApp = () => {
     return (
       <div className="grid grid-cols-12 bg-gray-800">
-        <div className="flex col-span-10 h-screen">{Player()}</div>
+        <div className="absolute right-0 top-10 z-30">
+          <input
+            type="file"
+            id="file-input"
+            onChange={async (event) => await loadSubtitle(event)}
+          >
+            Click here
+          </input>
+        </div>
+        <div className="flex col-span-10 h-screen relative">{Player()}</div>
         <div className="col-span-2">
           <ChatWindow
             message={message}
